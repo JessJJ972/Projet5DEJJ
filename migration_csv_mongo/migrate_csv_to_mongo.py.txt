@@ -1,0 +1,74 @@
+from pymongo import MongoClient
+import csv
+
+# PARAMÈTRES 
+
+MONGO_URI = "mongodb://localhost:27017"  # MongoDB local
+DB_NAME = "healthcare_db"               # Base de données
+COLLECTION_NAME = "patients"            # Collection
+CSV_FILE = "healthcare_dataset.csv"     # Fichier CSV
+
+
+# MIGRATION SIMPLE CSV -> MONGODB 
+
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+collection = db[COLLECTION_NAME]
+
+print("Connexion à MongoDB réussie.")
+
+
+documents = []
+
+with open(CSV_FILE, mode="r", encoding="utf-8", newline="") as file:
+    reader = csv.DictReader(file)
+
+    for row in reader:
+
+        # Conversion minimale (adaptée à TON dataset)
+        if row["Age"]:
+            row["Age"] = int(row["Age"])
+
+        if row["Room Number"]:
+            row["Room Number"] = int(row["Room Number"])
+
+        if row["Billing Amount"]:
+            row["Billing Amount"] = float(row["Billing Amount"])
+
+        documents.append(row)
+
+# Insertion en une seule commande
+if documents:
+    result = collection.insert_many(documents)
+    print(f"{len(result.inserted_ids)} documents insérés dans MongoDB.")
+else:
+    print("Le fichier CSV est vide.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
